@@ -4,12 +4,17 @@ require 'pry'
 class Automaton
   class MeatTab
     class Page
-      def initialize(driver)
+      def initialize(driver, opts = {})
         @driver = driver
+        @count  = opts[:count]
       end
 
       def unit_type
         @driver.find_element(:tag_name, :h3).text
+      end
+
+      def unit_count
+        @count
       end
     end
 
@@ -18,14 +23,17 @@ class Automaton
       while !loaded?
       end
       @pages_table = @driver.find_element(:class, 'unit-table')
-      @pages_count = @pages_table.find_elements(:class, "ng-scope").length
+      # -1 because we don't care about the meat tab
+      @pages_count = @pages_table.find_elements(:class, "ng-scope").length - 1
     end
 
     def each_page
       @pages_count.times do |i|
-        link = @driver.find_element(:class, 'unit-table').find_elements(:class, "ng-scope")[i].find_element(:class, "titlecase")
+        scope = @driver.find_element(:class, 'unit-table').find_elements(:class, "ng-scope")[i]
+        link  = scope.find_element(:class, "titlecase")
+        count = scope.find_elements(:tag_name, "td")[2].text
         link.click
-        page = Page.new(@driver)
+        page = Page.new(@driver, count: count)
         yield(page)
       end
     end
@@ -69,6 +77,7 @@ automaton.reset!
 meat_tab = automaton.meat_tab
 meat_tab.each_page do |page|
   puts page.unit_type
+  puts page.unit_count
 
 end
 # meat_tab.each_page do |page|
