@@ -8,7 +8,9 @@ require "pry"
 # 100 seconds
 # 7 iterations
 
-
+# run 3
+# 100 seconds
+# 9 iterations
 
 require_relative "lib/automaton"
 

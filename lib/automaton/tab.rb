@@ -4,15 +4,13 @@ class Automaton
       @driver = driver
       while !loaded?
       end
-      @pages_table = @driver.find_element(:class, 'unit-table')
       # -1 because we don't care about the meat tab
-      @pages_count = @pages_table.find_elements(:tag_name, "tr").length - 1
+      @pages_count = @driver.find_elements(:css, ".unit-table tr").length - 1
     end
 
     def each_page
       @pages_count.times do |i|
-        scope = @driver.find_element(:class, 'unit-table').find_elements(:tag_name, "tr")[i]
-        link  = scope.find_element(:class, "titlecase") rescue binding.pry
+        link = @driver.find_element(:css, ".unit-table tr:nth-child(#{i + 1}) .titlecase") rescue binding.pry
         link.click
         page = Page.new(@driver)
         yield(page)
@@ -22,8 +20,7 @@ class Automaton
     def reverse_each_page
       @pages_count.times do |j|
         i = @pages_count - j - 1
-        scope = @driver.find_element(:class, 'unit-table').find_elements(:tag_name, "tr")[i]
-        link  = scope.find_element(:class, "titlecase") rescue binding.pry
+        link = @driver.find_element(:css, ".unit-table tr:nth-child(#{i + 1}) .titlecase") rescue binding.pry
         link.click
         page = Page.new(@driver)
         yield(page)

@@ -41,11 +41,11 @@ class Automaton
   end
 
   def larvae_update_available?
-    !!@driver.find_element(:css, "tabs .tab-resource:nth-child(1) .glyphicon-circle-arrow-up") rescue false
+    !!@driver.find_element(:css, "tabs .tab-resource:nth-child(2) .glyphicon-circle-arrow-up") rescue false
   end
 
   def territory_tab_present?
-    !!@driver.find_element(:css, "tabs .tab-resource:nth-child(2)") rescue false
+    !!@driver.find_element(:css, "tabs .tab-resource:nth-child(3)") rescue false
   end
 
   def reset!
