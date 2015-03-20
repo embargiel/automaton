@@ -1,6 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    benchmark-ips (2.1.1)
     childprocess (0.5.5)
       ffi (~> 1.0, >= 1.0.11)
     ffi (1.9.8)
@@ -18,5 +19,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  benchmark-ips
   ruby-prof
   selenium-webdriver
