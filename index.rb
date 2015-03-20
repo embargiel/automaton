@@ -2,82 +2,7 @@ require "selenium-webdriver"
 require 'pry'
 
 class Automaton
-  class MeatTab
-    class Page
-      def initialize(driver)
-        @driver = driver
-      end
-
-      def buy_upgrades!
-        if production_upgrade_visible?
-          if unit_count * 2 >= production_upgrade_cost
-            buy_production_upgrade!
-          end
-        end
-        if spawn_upgrade_visible?
-          # TODO: Figure out a good metric to decide when we should buy spawn updates
-          buy_spawn_upgrade!
-        end
-      end
-
-      def buy_spawn_upgrade!
-        @driver.find_elements(:tag_name, "buyupgrade")[1].find_elements(:tag_name, "a").last.click
-      end
-
-      def spawn_upgrade_visible?
-        !!@driver.find_elements(:tag_name, "buyupgrade")[1] rescue false
-      end
-
-      def buy_production_upgrade!
-        @driver.find_elements(:tag_name, "buyupgrade").first.find_element(:tag_name, "a").click
-      end
-
-      def production_upgrade_visible?
-        !!@driver.find_element(:tag_name, "buyupgrade") rescue false
-      end
-
-      def production_upgrade_cost
-        @driver.find_elements(:tag_name, "cost")[1].text.gsub(",", "").to_f
-      end
-
-      def buy_units!
-        if unit_count == 0
-          if unit_type == "Drone"
-            buy(3)
-          else
-            if available_count > 0
-              buy(1)
-            end
-          end
-        elsif unit_count > 0
-          if available_count >= unit_count
-            buy(unit_count)
-          end
-        end
-      end
-
-      def unit_type
-        @driver.find_element(:tag_name, :h3).text
-      end
-
-      def unit_count
-        @driver.find_element(:tag_name, "unit").find_element(:tag_name, "ng-pluralize").text.split[2].gsub(",", "").to_f
-      end
-
-      def available_count
-        @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a").last.text.split.last.gsub(",", "").to_f
-      end
-
-      def buy(count)
-        input = @driver.find_element(:tag_name, "input")
-        while input.attribute("value").length > 0
-          input.send_key :backspace
-        end
-        input.send_keys(count)
-        @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a").first.click
-      end
-    end
-
+  class Tab
     def initialize(driver)
       @driver = driver
       while !loaded?
@@ -97,10 +22,74 @@ class Automaton
       end
     end
 
+    def reverse_each_page
+      @pages_count.times do |j|
+        i = @pages_count - j - 1
+        scope = @driver.find_element(:class, 'unit-table').find_elements(:tag_name, "tr")[i]
+        link  = scope.find_element(:class, "titlecase") rescue binding.pry
+        link.click
+        page = Page.new(@driver)
+        yield(page)
+      end
+    end
+
     private
 
     def loaded?
       !!@driver.find_element(:class, 'unit-table') rescue false
+    end
+  end
+
+  class Page
+    def initialize(driver)
+      @driver = driver
+    end
+
+    def buy_spawn_upgrade!
+      @driver.find_elements(:tag_name, "buyupgrade")[1].find_elements(:tag_name, "a").last.click
+    end
+
+    def spawn_upgrade_visible?
+      !!@driver.find_elements(:tag_name, "buyupgrade")[1] rescue false
+    end
+
+    def buy_production_upgrade!
+      @driver.find_elements(:tag_name, "buyupgrade").first.find_element(:tag_name, "a").click
+    end
+
+    def production_upgrade_visible?
+      !!@driver.find_element(:tag_name, "buyupgrade") rescue false
+    end
+
+    def production_upgrade_cost
+      @driver.find_elements(:tag_name, "cost")[1].text.gsub(",", "").to_f
+    end
+
+    def unit_type
+      @driver.find_element(:tag_name, :h3).text
+    end
+
+    def unit_count
+      @driver.find_element(:tag_name, "unit").find_element(:tag_name, "ng-pluralize").text.split[2].gsub(",", "").to_f
+    end
+
+    def available_count
+      @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a").last.text.split.last.gsub(",", "").to_f
+    end
+
+    def buy_quarter
+      if @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a").length == 3
+        @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a")[1].click
+      end
+    end
+
+    def buy(count)
+      input = @driver.find_element(:tag_name, "input")
+      while input.attribute("value").length > 0
+        input.send_key :backspace
+      end
+      input.send_keys(count)
+      @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a").first.click
     end
   end
 
@@ -125,7 +114,12 @@ class Automaton
 
   def meat_tab
     @driver.navigate.to 'https://swarmsim.github.io/#/tab/meat'
-    MeatTab.new(@driver)
+    Tab.new(@driver)
+  end
+
+  def territory_tab
+    @driver.navigate.to 'https://swarmsim.github.io/#/tab/territory'
+    Tab.new(@driver)
   end
 
   def larvae_page
@@ -133,8 +127,21 @@ class Automaton
     LarvaPage.new(@driver)
   end
 
+  def ensure_scientific_format!
+    @driver.navigate.to 'https://swarmsim.github.io/#/options'
+    elem = @driver.find_element(:name, "00X") rescue nil
+    while elem.nil?
+      elem = @driver.find_element(:name, "00X") rescue nil
+    end
+    @driver.find_element(:name, "00X").click
+  end
+
   def larvae_update_available?
     !!@driver.find_element(:tag_name, "tabs").find_elements(:class, "tab-resource")[1].find_element(:class, "glyphicon-circle-arrow-up") rescue false
+  end
+
+  def territory_tab_present?
+    !!@driver.find_element(:tag_name, "tabs").find_elements(:class, "tab-resource")[2] rescue false
   end
 
   def reset!
@@ -154,52 +161,56 @@ class Automaton
 end
 
 automaton = Automaton.new
+automaton.ensure_scientific_format!
 # automaton.reset!
 
 loop do
   meat_tab = automaton.meat_tab
   meat_tab.each_page do |page|
-    page.buy_upgrades!
-    page.buy_units!
+    #buy upgrades
+    if page.production_upgrade_visible?
+      if page.unit_count >= page.production_upgrade_cost * 2
+        page.buy_production_upgrade!
+      end
+    end
+    if page.spawn_upgrade_visible?
+      # TODO: Figure out a good metric to decide when we should buy spawn updates
+      page.buy_spawn_upgrade!
+    end
+
+    #buy units
+
+    if page.unit_count == 0
+      if page.unit_type == "Drone"
+        page.buy(3)
+      else
+        if page.available_count > 0
+          page.buy(1)
+        end
+      end
+    elsif page.unit_count > 0
+      if page.available_count >= page.unit_count
+        page.buy(page.unit_count)
+      end
+    end
   end
 
   if automaton.larvae_update_available?
     larvae_page = automaton.larvae_page
     larvae_page.buy_all_upgrades!
   end
+
+  if automaton.territory_tab_present?
+    territory_tab = automaton.territory_tab
+    territory_tab.reverse_each_page do |page|
+      if page.production_upgrade_visible?
+        page.buy_production_upgrade!
+      end
+      if page.unit_count < 1.0e6
+        page.buy_quarter
+      end
+    end
+  end
 end
 
 automaton.close!
-
-
-# [8] pry(#<Automaton::MeatTab>)> element = table.find_elements(:class, "ng-scope")
-# => [#<Selenium::WebDriver::Element:0x7739488a39f1daea id="{8c11828b-ca36-402e-aab8-3b99b77c509f}">, #<Selenium::WebDriver::Element:0x..fc375f3bc015a399c id="{f85f2f6c-4615-4919-8aa8-8659c2fe33f8}">]
-# [9] pry(#<Automaton::MeatTab>)> element.first
-# => #<Selenium::WebDriver::Element:0x7739488a39f1daea id="{8c11828b-ca36-402e-aab8-3b99b77c509f}">
-# [10] pry(#<Automaton::MeatTab>)> element.first.click
-# => "ok"
-# [11] pry(#<Automaton::MeatTab>)> element.first.click
-# => "ok"
-# [12] pry(#<Automaton::MeatTab>)> element.first.find_element("name", "a")
-# Selenium::WebDriver::Error::NoSuchElementError: Unable to locate element: {"method":"name","selector":"a"}
-# from [remote server] file:///tmp/webdriver-profile20150319-25435-1elsgil/extensions/fxdriver@googlecode.com/components/driver-component.js:10271:in `FirefoxDriver.prototype.findElementInternal_'
-# [13] pry(#<Automaton::MeatTab>)> element.first.click
-# => "ok"
-# [14] pry(#<Automaton::MeatTab>)> element.last.click
-# => "ok"
-# [15] pry(#<Automaton::MeatTab>)> element.first.find_element(:class, "unit-sidebar")
-# Selenium::WebDriver::Error::NoSuchElementError: Unable to locate element: {"method":"class name","selector":"unit-sidebar"}
-# from [remote server] file:///tmp/webdriver-profile20150319-25435-1elsgil/extensions/fxdriver@googlecode.com/components/driver-component.js:10271:in `FirefoxDriver.prototype.findElementInternal_'
-# [16] pry(#<Automaton::MeatTab>)> element.first
-# => #<Selenium::WebDriver::Element:0x7739488a39f1daea id="{8c11828b-ca36-402e-aab8-3b99b77c509f}">
-# [17] pry(#<Automaton::MeatTab>)> element.first.children
-# NoMethodError: undefined method `children' for #<Selenium::WebDriver::Element:0x0000000231ce30>
-# from (pry):17:in `each_page'
-# [18] pry(#<Automaton::MeatTab>)> element.first.child
-# NoMethodError: undefined method `child' for #<Selenium::WebDriver::Element:0x0000000231ce30>
-# from (pry):18:in `each_page'
-# [19] pry(#<Automaton::MeatTab>)> element.first.find_element(:class, "titlecase")
-# => #<Selenium::WebDriver::Element:0x1b76ba77f3babf26 id="{ab8e9b54-416b-424d-8fa8-0b55428a3d3f}">
-# [20] pry(#<Automaton::MeatTab>)> element.first.find_element(:class, "titlecase").click
-# => "ok"
-# [21] pry(#<Automaton::MeatTab>)>
