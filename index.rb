@@ -4,7 +4,7 @@ require_relative "lib/automaton"
 
 automaton = Automaton.new
 automaton.ensure_scientific_format!
-# automaton.reset!
+automaton.reset! if ENV['reset']
 
 loop do
   meat_tab = automaton.meat_tab
@@ -31,6 +31,14 @@ loop do
         end
       end
     elsif page.unit_count > 0
+      closest_power_of_10 = 10 ** Math.log10(page.unit_count).ceil
+      difference = closest_power_of_10 - page.unit_count
+      if difference < page.unit_count
+        if difference < page.available_count
+          page.buy(difference)
+        end
+      end
+
       if page.available_count >= page.unit_count
         page.buy(page.unit_count)
       end

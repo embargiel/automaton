@@ -42,11 +42,22 @@ class Automaton
       end
     end
 
+    def twins
+      t = @driver.find_element(:tag_name, "unit").find_element(:class, "form-group").text
+      v = t.scan(/\(×\d+/).first
+      if v.nil?
+        1
+      else
+        v['(×'] = ""
+        v.to_i
+      end
+    end
+
     def buy_all_upgrades!
       upgrades_count = @driver.find_elements(:tag_name, "buyupgrade").length
 
       upgrades_count.times do |i|
-        @driver.find_elements(:tag_name, "buyupgrade")[i].find_elements(:tag_name, "a").first.click
+        @driver.find_elements(:tag_name, "buyupgrade")[i].find_elements(:tag_name, "a").last.click
       end
     end
 
@@ -55,7 +66,8 @@ class Automaton
       while input.attribute("value").length > 0
         input.send_key :backspace
       end
-      input.send_keys(count)
+      actual_buy_value = ((count.to_f / twins) + 1).to_i
+      input.send_keys(actual_buy_value)
       @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a").first.click
     end
   end
