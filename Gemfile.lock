@@ -5,6 +5,7 @@ GEM
       ffi (~> 1.0, >= 1.0.11)
     ffi (1.9.8)
     multi_json (1.11.0)
+    ruby-prof (0.15.4)
     rubyzip (1.1.7)
     selenium-webdriver (2.45.0)
       childprocess (~> 0.5)
@@ -17,4 +18,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  ruby-prof
   selenium-webdriver

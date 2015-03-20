@@ -2,6 +2,7 @@ class Automaton
   class Page
     def initialize(driver)
       @driver = driver
+      # @buyupgrade =
     end
 
     def buy_spawn_upgrade!
@@ -29,7 +30,7 @@ class Automaton
     end
 
     def unit_count
-      @driver.find_element(:tag_name, "unit").find_element(:tag_name, "ng-pluralize").text.split[2].gsub(",", "").to_f
+      @unit_count ||= @driver.find_element(:tag_name, "unit").find_element(:tag_name, "ng-pluralize").text.split[2].gsub(",", "").to_f
     end
 
     def available_count
@@ -69,42 +70,6 @@ class Automaton
       actual_buy_value = ((count.to_f / twins) + 1).to_i
       input.send_keys(actual_buy_value)
       @driver.find_element(:tag_name, "buyunit").find_elements(:tag_name, "a").first.click
-    end
-  end
-
-  def initialize
-    @driver = Selenium::WebDriver.for :firefox
-    @driver.navigate.to "https://swarmsim.github.io"
-  end
-
-  def meat_tab
-    @driver.navigate.to 'https://swarmsim.github.io/#/tab/meat'
-    Tab.new(@driver)
-  end
-
-  def territory_tab
-    @driver.navigate.to 'https://swarmsim.github.io/#/tab/territory'
-    Tab.new(@driver)
-  end
-
-  def larvae_page
-    @driver.navigate.to "https://swarmsim.github.io/#/tab/larva/unit/larva"
-    Page.new(@driver)
-  end
-
-  def ensure_scientific_format!
-    @driver.navigate.to 'https://swarmsim.github.io/#/options'
-
-    elem = @driver.find_element(:tag_name, :input) rescue nil
-
-    while elem.nil?
-      elem = @driver.find_element(:tag_name, :input) rescue nil
-    end
-
-    @driver.find_elements(:tag_name, :input).each do |input|
-      if input.attribute("value") == 'scientific-e'
-        input.click
-      end
     end
   end
 end

@@ -1,12 +1,34 @@
 require "pry"
 
+# run 1
+# 100 seconds
+# 5 iterations
+
+# run 2
+# 100 seconds
+# 7 iterations
+
+
+
 require_relative "lib/automaton"
+
+if ENV['profile']
+  require "ruby-prof"
+  begin_time = Time.now
+  RubyProf.start
+
+  condition_proc = Proc.new { Time.now - begin_time < 100 }
+else
+  condition_proc = Proc.new { true }
+end
 
 automaton = Automaton.new
 automaton.ensure_scientific_format!
 automaton.reset! if ENV['reset']
 
-loop do
+# binding.pry
+
+while(condition_proc.call)
   meat_tab = automaton.meat_tab
   meat_tab.each_page do |page|
     #buy upgrades
@@ -64,3 +86,13 @@ loop do
 end
 
 automaton.close!
+
+if ENV['profile']
+  result = RubyProf.stop
+
+  printer = RubyProf::GraphHtmlPrinter.new(result)
+
+  Pathname.new(FileUtils.pwd).join("benchmark.html").open("w+") do |file|
+    printer.print(file, {})
+  end
+end
