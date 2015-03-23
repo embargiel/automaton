@@ -10,4 +10,15 @@
 // Read Sprockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+//= require jquery
+//= require jquery_ujs
+//= require ember
+//= require ember-data
+//= require steak
+//= require_self
+//= require ./monit
+
+// for more details see: http://emberjs.com/guides/application/
+Monit = Ember.Application.create();
+
 //= require_tree .
