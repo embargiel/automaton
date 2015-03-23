@@ -33,6 +33,9 @@ automaton.reset! if ENV['reset']
 while(condition_proc.call)
   meat_tab = automaton.meat_tab
   meat_tab.each_page do |page|
+    #log number
+    Automaton.config.logger.log_unit(type: page.unit_type, count: page.unit_count)
+
     #buy upgrades
     if page.production_upgrade_visible?
       if page.unit_count >= page.production_upgrade_cost * 2

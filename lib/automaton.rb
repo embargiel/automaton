@@ -2,8 +2,13 @@ require "selenium-webdriver"
 
 require_relative "automaton/page"
 require_relative "automaton/tab"
+require_relative "automaton/config"
 
 class Automaton
+  def self.config
+    @config ||= Config.new
+  end
+
   def initialize
     @driver = Selenium::WebDriver.for :firefox
     @driver.navigate.to "https://swarmsim.github.io"
