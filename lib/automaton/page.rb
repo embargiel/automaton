@@ -2,6 +2,8 @@ class Automaton
   class Page
     def initialize(driver)
       @driver = driver
+      while !loaded?
+      end
     end
 
     def buy_spawn_upgrade!
@@ -69,6 +71,12 @@ class Automaton
       actual_buy_value = ((count.to_f / twins) + 1).to_i
       input.send_keys(actual_buy_value)
       @driver.find_element(:css, "buyunit a:first-child").click
+    end
+
+    private
+
+    def loaded?
+      !!@driver.find_element(:css, "unit ng-pluralize:first-child") rescue false
     end
   end
 end

@@ -34,7 +34,7 @@ while(condition_proc.call)
   meat_tab = automaton.meat_tab
   meat_tab.each_page do |page|
     #log number
-    Automaton.config.logger.log_unit(type: page.unit_type, count: page.unit_count)
+    Automaton.config.logger.log_unit(page.unit_type, page.unit_count)
 
     #buy upgrades
     if page.production_upgrade_visible?

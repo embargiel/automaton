@@ -1,6 +1,6 @@
 class Automaton
   class Logger
-    def log_unit(type: type, count: count)
+    def log_unit(type, count)
       puts "There is #{count} of #{type}"
     end
   end
