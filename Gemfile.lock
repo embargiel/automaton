@@ -5,7 +5,12 @@ GEM
     childprocess (0.5.5)
       ffi (~> 1.0, >= 1.0.11)
     ffi (1.9.8)
+    httparty (0.13.3)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
+    json (1.8.2)
     multi_json (1.11.0)
+    multi_xml (0.5.5)
     ruby-prof (0.15.4)
     rubyzip (1.1.7)
     selenium-webdriver (2.45.0)
@@ -20,5 +25,6 @@ PLATFORMS
 
 DEPENDENCIES
   benchmark-ips
+  httparty
   ruby-prof
   selenium-webdriver
