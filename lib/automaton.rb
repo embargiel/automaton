@@ -67,4 +67,12 @@ class Automaton
   def close!
     @driver.quit
   end
+
+  def save_progress!
+    @driver.navigate.to 'https://swarmsim.github.io/#/options'
+    save = @driver.find_element(:id, "export").attribute("value")
+    File.open('save', 'w') do |file|
+      file.write(save)
+    end
+  end
 end

@@ -1,111 +1,105 @@
-require "pry"
+begin
+  require "pry"
 
-# run 1
-# 100 seconds
-# 5 iterations
+  require_relative "lib/automaton"
 
-# run 2
-# 100 seconds
-# 7 iterations
+  if ENV['profile']
+    require "ruby-prof"
+    begin_time = Time.now
+    RubyProf.start
 
-# run 3
-# 100 seconds
-# 9 iterations
+    condition_proc = Proc.new { Time.now - begin_time < 100 }
+  else
+    condition_proc = Proc.new { true }
+  end
 
-require_relative "lib/automaton"
+  automaton = Automaton.new
+  automaton.ensure_scientific_format!
+  automaton.reset! if ENV['reset']
 
-if ENV['profile']
-  require "ruby-prof"
-  begin_time = Time.now
-  RubyProf.start
+  # binding.pry
 
-  condition_proc = Proc.new { Time.now - begin_time < 100 }
-else
-  condition_proc = Proc.new { true }
-end
+  @calculuus = {}
 
-automaton = Automaton.new
-automaton.ensure_scientific_format!
-automaton.reset! if ENV['reset']
+  while(condition_proc.call)
+    meat_tab = automaton.meat_tab
+    meat_tab.each_page do |page|
+      @calculuus[page.unit_type] = page.unit_count
 
-# binding.pry
+      #log number
+      # Automaton.config.logger.log_unit(page.unit_type, page.unit_count)
 
-@calculuus = {}
-
-while(condition_proc.call)
-  meat_tab = automaton.meat_tab
-  meat_tab.each_page do |page|
-    @calculuus[page.unit_type] = page.unit_count
-
-    #log number
-    # Automaton.config.logger.log_unit(page.unit_type, page.unit_count)
-
-    #buy upgrades
-    if page.production_upgrade_visible?
-      if page.unit_count >= page.production_upgrade_cost * 2
-        page.buy_production_upgrade!
-      end
-    end
-    if page.spawn_upgrade_visible?
-      # TODO: Figure out a good metric to decide when we should buy spawn updates
-      page.buy_spawn_upgrade!
-    end
-
-    #buy units
-
-    if page.unit_count == 0
-      if page.unit_type == "Drone"
-        page.buy(3)
-      else
-        if page.available_count > 0
-          page.buy(1)
+      #buy upgrades
+      if page.production_upgrade_visible?
+        if page.unit_count >= page.production_upgrade_cost * 2
+          page.buy_production_upgrade!
         end
       end
-    elsif page.unit_count > 0
-      if page.unit_type == "Drone" and @calculuus["Queen"].to_i == 0
-        page.buy_max
-      else
-        closest_power_of_10 = 10 ** Math.log10(page.unit_count).ceil
-        difference = closest_power_of_10 - page.unit_count
-        if difference < page.unit_count
-          if difference < page.available_count
-            page.buy(difference)
+      if page.spawn_upgrade_visible?
+        # TODO: Figure out a good metric to decide when we should buy spawn updates
+        page.buy_spawn_upgrade!
+      end
+
+      #buy units
+
+      if page.unit_count == 0
+        if page.unit_type == "Drone"
+          page.buy(3)
+        else
+          if page.available_count > 0
+            page.buy(1)
           end
         end
+      elsif page.unit_count > 0
+        if page.unit_type == "Drone" and @calculuus["Queen"].to_i == 0
+          page.buy_max
+        else
+          closest_power_of_10 = 10 ** Math.log10(page.unit_count).ceil
+          difference = closest_power_of_10 - page.unit_count
+          if difference < page.unit_count
+            if difference < page.available_count
+              page.buy(difference)
+            end
+          end
 
-        if page.available_count >= page.unit_count
-          page.buy(page.unit_count)
+          if page.available_count >= page.unit_count
+            page.buy(page.unit_count)
+          end
         end
       end
     end
-  end
 
-  if automaton.larvae_update_available?
-    larvae_page = automaton.larvae_page
-    larvae_page.buy_all_upgrades!
-  end
+    if automaton.larvae_update_available?
+      larvae_page = automaton.larvae_page
+      larvae_page.buy_all_upgrades!
+    end
 
-  if automaton.territory_tab_present?
-    territory_tab = automaton.territory_tab
-    territory_tab.reverse_each_page do |page|
-      if page.production_upgrade_visible?
-        page.buy_production_upgrade!
-      end
-      if page.unit_count < 1.0e6
-        page.buy_quarter
+    if automaton.territory_tab_present?
+      territory_tab = automaton.territory_tab
+      territory_tab.reverse_each_page do |page|
+        if page.production_upgrade_visible?
+          page.buy_production_upgrade!
+        end
+        if page.unit_count < 1.0e6
+          page.buy_quarter
+        end
       end
     end
+
+    automaton.save_progress!
   end
-end
 
-automaton.close!
 
-if ENV['profile']
-  result = RubyProf.stop
+  if ENV['profile']
+    result = RubyProf.stop
 
-  printer = RubyProf::GraphHtmlPrinter.new(result)
+    printer = RubyProf::GraphHtmlPrinter.new(result)
 
-  Pathname.new(FileUtils.pwd).join("benchmark.html").open("w+") do |file|
-    printer.print(file, {})
+    Pathname.new(FileUtils.pwd).join("benchmark.html").open("w+") do |file|
+      printer.print(file, {})
+    end
   end
+ensure
+  automaton.save_progress!
+  automaton.close!
 end
