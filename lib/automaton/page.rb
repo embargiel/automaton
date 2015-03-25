@@ -23,7 +23,7 @@ class Automaton
     end
 
     def production_upgrade_cost
-      @driver.find_element(:css, "cost:nth-child(2)").text.gsub(",", "").to_f
+      @driver.find_element(:css, "ul li cost:nth-child(2)").text.gsub(",", "").to_f
     end
 
     def unit_type
@@ -42,6 +42,10 @@ class Automaton
       if @driver.find_elements(:css, "buyunit a").length == 3
         @driver.find_element(:css, "buyunit a:nth-child(2)").click
       end
+    end
+
+    def buy_max
+      @driver.find_element(:css, "buyunit a:last-child").click
     end
 
     def twins
