@@ -42,11 +42,8 @@ while(condition_proc.call)
 
     #buy upgrades
     if page.production_upgrade_visible?
-      puts "I can buy production upgrade for #{page.unit_type}"
       if page.unit_count >= page.production_upgrade_cost * 2
         page.buy_production_upgrade!
-      else
-        puts "But I will not, because #{page.unit_count} is smaller than #{page.production_upgrade_cost * 2}"
       end
     end
     if page.spawn_upgrade_visible?
