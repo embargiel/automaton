@@ -7,11 +7,11 @@ class Automaton
     end
 
     def buy_spawn_upgrade!
-      @driver.find_element(:css, "buyupgrade:nth-child(2) a").click
+      @driver.find_element(:css, "buyupgrade a:nth-child(2)").click
     end
 
     def spawn_upgrade_visible?
-      !!@driver.find_element(:css, "buyupgrade:nth-child(2)") rescue false
+      !!@driver.find_element(:css, "buyupgrade a:nth-child(2)") rescue false
     end
 
     def buy_production_upgrade!
