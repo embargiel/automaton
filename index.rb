@@ -75,11 +75,11 @@ begin
 
     if automaton.territory_tab_present?
       territory_tab = automaton.territory_tab
-      territory_tab.reverse_each_page do |page|
+      territory_tab.each_page do |page|
         if page.production_upgrade_visible?
           page.buy_all_upgrades!
         end
-        if page.unit_count < 1.0e15
+        if page.unit_count < 1.0e10
           page.buy_quarter
         end
       end
