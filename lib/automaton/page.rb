@@ -7,15 +7,15 @@ class Automaton
     end
 
     def buy_spawn_upgrade!
-      @driver.find_element(:css, "buyupgrade a:nth-child(2)").click
+      @driver.find_elements(:tag_name, "buyupgrade")[1].find_elements(:tag_name, "a").last.click
     end
 
     def spawn_upgrade_visible?
-      !!@driver.find_element(:css, "buyupgrade a:nth-child(2)") rescue false
+      !!@driver.find_elements(:tag_name, "buyupgrade")[1] rescue false
     end
 
     def buy_production_upgrade!
-      @driver.find_element(:css, "buyupgrade a").click
+      @driver.find_element(:css, "buyupgrade a:last-child").click rescue nil
     end
 
     def production_upgrade_visible?
@@ -63,15 +63,13 @@ class Automaton
       upgrades_count = @driver.find_elements(:tag_name, "buyupgrade").length
 
       upgrades_count.times do |i|
-        @driver.find_elements(:tag_name, "buyupgrade")[i].find_elements(:tag_name, "a").last.click
+        @driver.find_elements(:tag_name, "buyupgrade")[i].find_elements(:tag_name, "a").last.click rescue nil
       end
     end
 
     def buy(count)
       input = @driver.find_element(:tag_name, "input")
-      while input.attribute("value").length > 0
-        input.send_key :backspace
-      end
+      input.clear
       actual_buy_value = ((count.to_f / twins) + 1).to_i
       input.send_keys(actual_buy_value)
       @driver.find_element(:css, "buyunit a:first-child").click

@@ -68,6 +68,21 @@ class Automaton
     @driver.quit
   end
 
+  def load!
+    @driver.navigate.to 'https://swarmsim.github.io/#/options'
+    save = File.open('save').read
+    input = @driver.find_element(:id, "export")
+    input.clear
+    @driver.execute_script("document.getElementById('export').value = '#{save}'")
+    input.send_key(:space)
+    # binding.pry
+    # binding.pry
+    # @driver.execute_script("document.getElementById('export').setAttribute('value', #{save})")
+    # save.split.each do |char|
+    #   input.send_key(char)
+    # end
+  end
+
   def save_progress!
     @driver.navigate.to 'https://swarmsim.github.io/#/options'
     save = @driver.find_element(:id, "export").attribute("value")

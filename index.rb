@@ -16,6 +16,7 @@ begin
   automaton = Automaton.new
   automaton.ensure_scientific_format!
   automaton.reset! if ENV['reset']
+  automaton.load!
 
   # binding.pry
 
@@ -60,10 +61,8 @@ begin
             if difference < page.available_count
               page.buy(difference)
             end
-          end
-
-          if page.available_count >= page.unit_count
-            page.buy(page.unit_count)
+          elsif page.available_count >= page.unit_count
+            page.buy_max
           end
         end
       end
@@ -78,9 +77,9 @@ begin
       territory_tab = automaton.territory_tab
       territory_tab.reverse_each_page do |page|
         if page.production_upgrade_visible?
-          page.buy_production_upgrade!
+          page.buy_all_upgrades!
         end
-        if page.unit_count < 1.0e6
+        if page.unit_count < 1.0e15
           page.buy_quarter
         end
       end
