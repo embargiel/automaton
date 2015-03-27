@@ -70,7 +70,7 @@ class Automaton
     def buy(count)
       input = @driver.find_element(:tag_name, "input")
       input.clear
-      actual_buy_value = ((count.to_f / twins) + 1).to_i
+      actual_buy_value = (count.to_f / twins).to_i
       input.send_keys(actual_buy_value)
 
       #clicking is hard
