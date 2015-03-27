@@ -5,6 +5,8 @@ require_relative "automaton/tab"
 require_relative "automaton/config"
 
 class Automaton
+  attr_reader :driver
+
   def self.config
     @config ||= Config.new
   end
@@ -53,6 +55,14 @@ class Automaton
     !!@driver.find_element(:css, "tabs .tab-resource:nth-child(3)") rescue false
   end
 
+  def energy_tab_present?
+    !!@driver.find_element(:css, "tabs .tab-resource:nth-child(4)") rescue false
+  end
+
+  def can_affor_larvae_rush?
+    @driver.find_element(:css, "tabs .tab-resource:nth-child(4)").text.gsub(",", "").to_f >= 1600
+  end
+
   def reset!
     @driver.navigate.to 'https://swarmsim.github.io/#/options'
 
@@ -75,12 +85,6 @@ class Automaton
     input.clear
     @driver.execute_script("document.getElementById('export').value = '#{save}'")
     input.send_key(:space)
-    # binding.pry
-    # binding.pry
-    # @driver.execute_script("document.getElementById('export').setAttribute('value', #{save})")
-    # save.split.each do |char|
-    #   input.send_key(char)
-    # end
   end
 
   def save_progress!

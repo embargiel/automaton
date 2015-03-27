@@ -37,7 +37,6 @@ begin
         end
       end
       if page.spawn_upgrade_visible? and index <= 2
-        # TODO: Figure out a good metric to decide when we should buy spawn updates
         page.buy_spawn_upgrade!
       end
 
@@ -83,6 +82,13 @@ begin
           page.buy_quarter
         end
       end
+    end
+
+    if automaton.energy_tab_present? and automaton.can_affor_larvae_rush?
+      automaton.driver.navigate.to 'https://swarmsim.github.io/#/tab/energy/unit/energy'
+      while(!automaton.driver.find_element(:css, "buyupgrade a:first-child") rescue true)
+      end
+      automaton.driver.find_element(:css, "buyupgrade a:first-child").click
     end
 
     automaton.save_progress!
