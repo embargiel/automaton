@@ -14,9 +14,9 @@ begin
   end
 
   automaton = Automaton.new
-  automaton.ensure_scientific_format!
   automaton.reset! if ENV['reset']
   automaton.load!
+  automaton.ensure_scientific_format!
 
   # binding.pry
 

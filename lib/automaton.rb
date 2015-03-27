@@ -40,6 +40,7 @@ class Automaton
       elem = @driver.find_element(:tag_name, :input) rescue nil
     end
 
+
     @driver.find_elements(:tag_name, :input).each do |input|
       if input.attribute("value") == 'scientific-e'
         input.click
@@ -79,12 +80,14 @@ class Automaton
   end
 
   def load!
-    @driver.navigate.to 'https://swarmsim.github.io/#/options'
-    save = File.open('save').read
-    input = @driver.find_element(:id, "export")
-    input.clear
-    @driver.execute_script("document.getElementById('export').value = '#{save}'")
-    input.send_key(:space)
+    if File.exists?('save')
+      @driver.navigate.to 'https://swarmsim.github.io/#/options'
+      save = File.open('save').read
+      input = @driver.find_element(:id, "export")
+      input.clear
+      @driver.execute_script("document.getElementById('export').value = '#{save}'")
+      input.send_key(:space)
+    end
   end
 
   def save_progress!
