@@ -56,8 +56,9 @@ begin
         else
           closest_power_of_10 = 10 ** Math.log10(page.unit_count).ceil
           difference = closest_power_of_10 - page.unit_count
-          if difference < page.unit_count
+          if (difference > 0) and difference < page.unit_count
             if difference < page.available_count
+              puts "I decided to buy #{difference} #{page.unit_type} to fill up the difference to #{closest_power_of_10}"
               page.buy(difference)
             end
           elsif page.available_count >= page.unit_count
@@ -107,6 +108,6 @@ begin
     end
   end
 ensure
-  automaton.save_progress!
-  automaton.close!
+  # automaton.save_progress!
+  # automaton.close!
 end
