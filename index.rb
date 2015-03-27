@@ -74,9 +74,11 @@ begin
 
     if automaton.territory_tab_present?
       territory_tab = automaton.territory_tab
-      territory_tab.each_page do |page|
+      territory_tab.each_page do |page, index|
         if page.production_upgrade_visible?
-          page.buy_all_upgrades!
+          if (index < 3) || (index == 10)
+            page.buy_all_upgrades!
+          end
         end
         if page.unit_count < 1.0e10
           page.buy_quarter

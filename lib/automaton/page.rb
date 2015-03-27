@@ -72,6 +72,14 @@ class Automaton
       input.clear
       actual_buy_value = ((count.to_f / twins) + 1).to_i
       input.send_keys(actual_buy_value)
+
+      #clicking is hard
+      unless actual_buy_value == 1
+        while(@driver.find_element(:css, "buyunit a:first-child").text == "Buy 1")
+        end
+      end
+      sleep 1
+
       @driver.find_element(:css, "buyunit a:first-child").click
     end
 
