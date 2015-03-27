@@ -13,7 +13,7 @@ class Automaton
         link = @driver.find_element(:css, ".unit-table tr:nth-child(#{i + 1}) .titlecase") rescue binding.pry
         link.click
         page = Page.new(@driver)
-        yield(page)
+        yield(page, i)
       end
     end
 

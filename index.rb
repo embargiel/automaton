@@ -24,7 +24,7 @@ begin
 
   while(condition_proc.call)
     meat_tab = automaton.meat_tab
-    meat_tab.each_page do |page|
+    meat_tab.each_page do |page, index|
       @calculuus[page.unit_type] = page.unit_count
 
       #log number
@@ -36,7 +36,7 @@ begin
           page.buy_production_upgrade!
         end
       end
-      if page.spawn_upgrade_visible?
+      if page.spawn_upgrade_visible? and index <= 2
         # TODO: Figure out a good metric to decide when we should buy spawn updates
         page.buy_spawn_upgrade!
       end
