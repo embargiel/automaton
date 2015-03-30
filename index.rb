@@ -95,6 +95,7 @@ begin
     end
 
     automaton.save_progress!
+    automaton.reset_driver! if automaton.needs_restart?
   end
 
 

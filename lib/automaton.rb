@@ -12,8 +12,7 @@ class Automaton
   end
 
   def initialize
-    @driver = Selenium::WebDriver.for :firefox
-    @driver.navigate.to "https://swarmsim.github.io"
+    start!
   end
 
   def meat_tab
@@ -77,6 +76,21 @@ class Automaton
 
   def close!
     @driver.quit
+  end
+
+  def start!
+    @driver = Selenium::WebDriver.for :firefox
+    @driver.navigate.to "https://swarmsim.github.io"
+    @started_at = Time.now
+  end
+
+  def needs_restart?
+    (Time.now - @started_at) > 20 * 60 # restart if running for 20 minutes already
+  end
+
+  def reset_driver!
+    close!
+    start!
   end
 
   def load!
