@@ -30,6 +30,21 @@ class Automaton
     Page.new(@driver)
   end
 
+  def larvae_production?  
+    @driver.navigate.to "https://swarmsim.github.io/#/tab/larva/unit/larva"
+    prod = @driver.find_element(:css, "div.ng-binding span.ng-binding").text.split[0].gsub(",", "").to_f
+  end
+
+  def cocoon_page
+    @driver.navigate.to 'https://swarmsim.github.io/#/tab/larva/unit/cocoon'
+    Page.new(@driver)
+  end
+
+  def energy_tab
+    @driver.navigate.to "https://swarmsim.github.io/#/tab/energy/unit/energy"
+    Tab.new(@driver)
+  end
+
   def ensure_scientific_format!
     @driver.navigate.to 'https://swarmsim.github.io/#/options'
 
@@ -56,11 +71,28 @@ class Automaton
   end
 
   def energy_tab_present?
-    !!@driver.find_element(:css, "tabs .tab-resource:nth-child(4)") rescue false
+    !!@driver.find_element(:css, "tabs .tab-resource a div.icon-energy") rescue false
   end
 
-  def can_affor_larvae_rush?
-    @driver.find_element(:css, "tabs .tab-resource:nth-child(4)").text.gsub(",", "").to_f >= 1600
+  def can_affor_clone?
+    @driver.find_element(:css, "tabs .tab-resource:nth-child(4)").text.gsub(",", "").to_f >= 12000
+  end
+
+  def check_nexus?
+    @driver.navigate.to 'https://swarmsim.github.io/#/tab/energy'
+    level = @driver.find_element(:css, ".tab-content .ng-scope:nth-last-child(2) td:nth-child(3)").text
+    name = @driver.find_element(:css, ".tab-content .ng-scope:nth-last-child(2) a.titlecase").text
+    level == "5" and name == "Nexus"
+  end
+
+  def clone_availability?
+    @driver.navigate.to 'https://swarmsim.github.io/#/tab/energy/unit/energy'
+    @driver.find_element(:css, "div.ng-scope li:nth-child(5) span a").text.to_f    
+  end
+
+  def cocoon_quantity?
+    @driver.navigate.to 'https://swarmsim.github.io/#/tab/larva/unit/cocoon'
+    @driver.find_element(:css, "unit ng-pluralize:first-child").text.split[2].gsub(",", "").to_f
   end
 
   def reset!

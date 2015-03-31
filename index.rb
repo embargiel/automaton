@@ -23,6 +23,32 @@ begin
   @calculuus = {}
 
   while(condition_proc.call)
+    if !automaton.energy_tab_present?
+      automaton.driver.navigate.to 'https://swarmsim.github.io/#/tab/meat/unit/meat'
+      if automaton.driver.find_element(:css, "buyupgrade a:first-child")
+        automaton.driver.find_element(:css, "buyupgrade a:first-child").click
+      end
+    end
+    if automaton.energy_tab_present?
+      if automaton.check_nexus?        
+        needs_cloned = automaton.cocoon_quantity? - automaton.clone_availability?
+        sleeptime = -needs_cloned / automaton.larvae_production? + 1          
+        sleep(sleeptime.to_i)           
+        cocoon_page = automaton.cocoon_page
+        cocoon_page.buy(-needs_cloned)    
+        if automaton.can_affor_clone?     
+          automaton.driver.navigate.to 'https://swarmsim.github.io/#/tab/energy/unit/energy'
+          while(!automaton.driver.find_element(:css, "buyupgrade a:last-child") rescue true)
+          end
+          automaton.driver.find_element(:css, "buyupgrade a:last-child").click
+        end  
+      else
+        automaton.driver.navigate.to 'https://swarmsim.github.io/#/tab/energy/unit/nexus'
+        if automaton.driver.find_element(:css, "buyupgrade a:first-child")
+          automaton.driver.find_element(:css, "buyupgrade a:first-child").click
+        end
+      end    
+    end   
     meat_tab = automaton.meat_tab
     meat_tab.each_page do |page, index|
       @calculuus[page.unit_type] = page.unit_count
@@ -85,13 +111,6 @@ begin
           page.buy_quarter
         end
       end
-    end
-
-    if automaton.energy_tab_present? and automaton.can_affor_larvae_rush?
-      automaton.driver.navigate.to 'https://swarmsim.github.io/#/tab/energy/unit/energy'
-      while(!automaton.driver.find_element(:css, "buyupgrade a:first-child") rescue true)
-      end
-      automaton.driver.find_element(:css, "buyupgrade a:first-child").click
     end
 
     automaton.save_progress!
