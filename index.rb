@@ -31,16 +31,21 @@ begin
     end
     if automaton.energy_tab_present?
       if automaton.check_nexus?        
-        needs_cloned = automaton.cocoon_quantity? - automaton.clone_availability?
-        sleeptime = -needs_cloned / automaton.larvae_production? + 1          
-        sleep(sleeptime.to_i)           
-        cocoon_page = automaton.cocoon_page
-        cocoon_page.buy(-needs_cloned)    
+        needs_cloned = automaton.cocoon_quantity? - automaton.clone_availability? * 1.3
+        if needs_cloned < 0        
+          cocoon_page = automaton.cocoon_page
+          cocoon_page.buy(-needs_cloned)   
+        end 
         if automaton.can_affor_clone?     
           automaton.driver.navigate.to 'https://swarmsim.github.io/#/tab/energy/unit/energy'
           while(!automaton.driver.find_element(:css, "buyupgrade a:last-child") rescue true)
           end
           automaton.driver.find_element(:css, "buyupgrade a:last-child").click
+          needs_cloned = automaton.cocoon_quantity? - automaton.clone_availability? * 1.3
+          if needs_cloned < 0        
+            cocoon_page = automaton.cocoon_page
+            cocoon_page.buy(-needs_cloned)   
+          end 
         end  
       else
         automaton.driver.navigate.to 'https://swarmsim.github.io/#/tab/energy/unit/nexus'
@@ -107,8 +112,8 @@ begin
             page.buy_all_upgrades!
           end
         end
-        if page.unit_count < 1.0e10
-          page.buy_quarter
+        if (index == 0)
+          page.buy_max
         end
       end
     end

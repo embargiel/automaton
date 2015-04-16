@@ -95,6 +95,11 @@ class Automaton
     @driver.find_element(:css, "unit ng-pluralize:first-child").text.split[2].gsub(",", "").to_f
   end
 
+  def larvae_quantity?
+    @driver.navigate.to 'https://swarmsim.github.io/#/tab/larva/unit/larva'
+    @driver.find_element(:css, "unit ng-pluralize:first-child").text.split[2].gsub(",", "").to_f
+  end
+
   def reset!
     @driver.navigate.to 'https://swarmsim.github.io/#/options'
 
